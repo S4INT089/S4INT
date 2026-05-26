@@ -1,517 +1,653 @@
---// S4INT HUB V1
---// MAIN.LUA
+
+fpsLabel.TextScaled = true
+fpsLabel.TextColor3 = Color3.fromRGB(0,255,120)
+fpsLabel.Parent = frame
+
+local holder = Instance.new("ScrollingFrame")
+holder.Size = UDim2.new(1,-20,1,-90)
+holder.Position = UDim2.new(0,10,0,80)
+holder.CanvasSize = UDim2.new(0,0,0,1800)
+holder.ScrollBarThickness = 4
+holder.BackgroundTransparency = 1
+holder.BorderSizePixel = 0
+holder.Parent = frame
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0,14)
+layout.Parent = holder
 
 --====================================================
--- SERVICES
+-- FUNCTIONS
 --====================================================
 
-local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local Lighting = game:GetService("Lighting")
+local function createButton(text,color)
 
---====================================================
--- PLAYER
---====================================================
+	local button = Instance.new("TextButton")
+	button.Size = UDim2.new(1,0,0,55)
+	button.BackgroundColor3 = color
+	button.Text = text
+	button.Font = Enum.Font.GothamBold
+	button.TextScaled = true
+	button.TextColor3 = Color3.new(1,1,1)
+	button.BorderSizePixel = 0
+	button.AutoButtonColor = false
+	button.Parent = holder
 
-local player = Players.LocalPlayer
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0,18)
+	corner.Parent = button
 
-if player.PlayerGui:FindFirstChild("S4INT") then
-return
+	button.MouseEnter:Connect(function()
+		TweenService:Create(button,TweenInfo.new(0.15),{
+			BackgroundTransparency = 0.15
+		}):Play()
+	end)
+
+	button.MouseLeave:Connect(function()
+		TweenService:Create(button,TweenInfo.new(0.15),{
+			BackgroundTransparency = 0
+		}):Play()
+	end)
+
+	return button
+end
+
+local function createBox(text)
+
+	local box = Instance.new("TextBox")
+	box.Size = UDim2.new(1,0,0,50)
+	box.BackgroundColor3 = Color3.fromRGB(18,18,18)
+	box.PlaceholderText = text
+	box.Text = ""
+	box.Font = Enum.Font.Gotham
+	box.TextScaled = true
+	box.TextColor3 = Color3.new(1,1,1)
+	box.Parent = holder
+
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0,18)
+	corner.Parent = box
+
+	return box
 end
 
 --====================================================
--- THEME
+-- FPS COUNTER
 --====================================================
 
-local Theme = {}
+local frames = 0
+local last = tick()
 
-Theme.Background = Color3.fromRGB(10,10,10)
-Theme.Secondary = Color3.fromRGB(20,20,20)
-Theme.Primary = Color3.fromRGB(170,0,255)
-Theme.Accent = Color3.fromRGB(0,170,255)
-Theme.Success = Color3.fromRGB(0,255,120)
-Theme.Danger = Color3.fromRGB(255,70,70)
-Theme.Text = Color3.new(1,1,1)
-Theme.Off = Color3.fromRGB(50,50,50)
+RunService.RenderStepped:Connect(function()
+	frames += 1
 
---====================================================
--- KEY SYSTEM
---====================================================
-
-local ValidKeys = {
-
-```
-["S4INT202"] = true,
-["X9K2P1Q8"] = true,
-["A7M4L9Q2"] = true
-```
-
-}
+	if tick() - last >= 1 then
+		fpsLabel.Text = "FPS: "..frames
+		frames = 0
+		last = tick()
+	end
+end)
 
 --====================================================
--- GUI
+-- WALKSPEED
 --====================================================
 
-local gui = Instance.new("ScreenGui")
-gui.Name = "S4INT"
-gui.ResetOnSpawn = false
-gui.Parent = player.PlayerGui
+local speedBox = createBox("ENTER WALKSPEED")
+local speedBtn = createButton("SET WALKSPEED", Color3.fromRGB(0,120,255))
+
+speedBtn.MouseButton1Click:Connect(function()
+	local n = tonumber(speedBox.Text)
+	if n then
+		humanoid.WalkSpeed = n
+	end
+end)
 
 --====================================================
--- BLUR
+-- JUMPPOWER
 --====================================================
 
-local oldBlur = Lighting:FindFirstChild("S4INTBlur")
+local jumpBox = createBox("ENTER JUMPPOWER")
+local jumpBtn = createButton("SET JUMPPOWER", Color3.fromRGB(170,0,255))
 
-if oldBlur then
-oldBlur:Destroy()
-end
-
-local blur = Instance.new("BlurEffect")
-blur.Name = "S4INTBlur"
-blur.Size = 12
-blur.Parent = Lighting
-
---====================================================
--- KEY WINDOW
---====================================================
-
-local keyFrame = Instance.new("Frame")
-keyFrame.Size = UDim2.new(0,420,0,220)
-keyFrame.Position = UDim2.new(0.5,-210,0.5,-110)
-keyFrame.BackgroundColor3 = Theme.Background
-keyFrame.BorderSizePixel = 0
-keyFrame.Parent = gui
-
-local keyCorner = Instance.new("UICorner")
-keyCorner.CornerRadius = UDim.new(0,20)
-keyCorner.Parent = keyFrame
-
-local keyStroke = Instance.new("UIStroke")
-keyStroke.Thickness = 2
-keyStroke.Color = Theme.Primary
-keyStroke.Parent = keyFrame
-
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1,0,0,60)
-title.BackgroundTransparency = 1
-title.Text = "S4INT HUB"
-title.Font = Enum.Font.GothamBlack
-title.TextScaled = true
-title.TextColor3 = Theme.Text
-title.Parent = keyFrame
-
-local keyBox = Instance.new("TextBox")
-keyBox.Size = UDim2.new(0.8,0,0,50)
-keyBox.Position = UDim2.new(0.1,0,0.35,0)
-keyBox.PlaceholderText = "ENTER KEY"
-keyBox.Text = ""
-keyBox.Font = Enum.Font.GothamBold
-keyBox.TextScaled = true
-keyBox.TextColor3 = Theme.Text
-keyBox.BackgroundColor3 = Theme.Secondary
-keyBox.BorderSizePixel = 0
-keyBox.Parent = keyFrame
-
-local keyBoxCorner = Instance.new("UICorner")
-keyBoxCorner.CornerRadius = UDim.new(0,14)
-keyBoxCorner.Parent = keyBox
-
-local verify = Instance.new("TextButton")
-verify.Size = UDim2.new(0.8,0,0,50)
-verify.Position = UDim2.new(0.1,0,0.67,0)
-verify.Text = "VERIFY"
-verify.Font = Enum.Font.GothamBlack
-verify.TextScaled = true
-verify.TextColor3 = Theme.Text
-verify.BackgroundColor3 = Theme.Primary
-verify.BorderSizePixel = 0
-verify.Parent = keyFrame
-
-local verifyCorner = Instance.new("UICorner")
-verifyCorner.CornerRadius = UDim.new(0,14)
-verifyCorner.Parent = verify
+jumpBtn.MouseButton1Click:Connect(function()
+	local n = tonumber(jumpBox.Text)
+	if n then
+		humanoid.JumpPower = n
+	end
+end)
 
 --====================================================
--- MAIN UI
+-- NOCLIP
 --====================================================
 
-local main = Instance.new("Frame")
-main.Size = UDim2.new(0,780,0,520)
-main.Position = UDim2.new(0.5,-390,0.5,-260)
-main.BackgroundColor3 = Theme.Background
-main.Visible = false
-main.Parent = gui
+local noclip = false
+local noclipBtn = createButton("NOCLIP : OFF", Color3.fromRGB(50,50,50))
 
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0,22)
-mainCorner.Parent = main
+noclipBtn.MouseButton1Click:Connect(function()
+	
+	noclip = not noclip
 
-local mainStroke = Instance.new("UIStroke")
-mainStroke.Thickness = 2
-mainStroke.Parent = main
+	if noclip then
+		noclipBtn.Text = "NOCLIP : ON"
+		noclipBtn.BackgroundColor3 = Color3.fromRGB(0,255,120)
+	else
+		noclipBtn.Text = "NOCLIP : OFF"
+		noclipBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	end
+end)
+
+RunService.Stepped:Connect(function()
+	if noclip and character then
+		for _,v in pairs(character:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
 
 --====================================================
--- RGB BORDER
+-- FLY
+--====================================================
+
+local flying = false
+local flySpeed = 80
+
+local flyBtn = createButton("FLY : OFF", Color3.fromRGB(50,50,50))
+local flyBox = createBox("ENTER FLY SPEED")
+
+local bv
+local bg
+
+flyBtn.MouseButton1Click:Connect(function()
+
+	flying = not flying
+
+	local root = character:WaitForChild("HumanoidRootPart")
+
+	if flying then
+
+		flyBtn.Text = "FLY : ON"
+		flyBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
+
+		bv = Instance.new("BodyVelocity")
+		bv.MaxForce = Vector3.new(999999,999999,999999)
+		bv.Parent = root
+
+		bg = Instance.new("BodyGyro")
+		bg.MaxTorque = Vector3.new(999999,999999,999999)
+		bg.Parent = root
+
+		humanoid.PlatformStand = true
+
+	else
+
+		flyBtn.Text = "FLY : OFF"
+		flyBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+		if bv then bv:Destroy() end
+		if bg then bg:Destroy() end
+
+		humanoid.PlatformStand = false
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+
+	if flying and bv and bg then
+
+		local cam = workspace.CurrentCamera
+		local move = Vector3.zero
+
+		if UIS:IsKeyDown(Enum.KeyCode.W) then
+			move += cam.CFrame.LookVector
+		end
+
+		if UIS:IsKeyDown(Enum.KeyCode.S) then
+			move -= cam.CFrame.LookVector
+		end
+
+		if UIS:IsKeyDown(Enum.KeyCode.A) then
+			move -= cam.CFrame.RightVector
+		end
+
+		if UIS:IsKeyDown(Enum.KeyCode.D) then
+			move += cam.CFrame.RightVector
+		end
+
+		if UIS:IsKeyDown(Enum.KeyCode.Space) then
+			move += Vector3.new(0,1,0)
+		end
+
+		local newSpeed = tonumber(flyBox.Text)
+
+		if newSpeed then
+			flySpeed = newSpeed
+		end
+
+		bv.Velocity = move * flySpeed
+		bg.CFrame = cam.CFrame
+	end
+end)
+
+--====================================================
+-- SPINBOT
+--====================================================
+
+local spin = false
+local spinSpeed = 50
+
+local spinBtn = createButton("SPINBOT : OFF", Color3.fromRGB(50,50,50))
+local spinBox = createBox("ENTER SPIN SPEED")
+
+spinBtn.MouseButton1Click:Connect(function()
+
+	spin = not spin
+
+	if spin then
+		spinBtn.Text = "SPINBOT : ON"
+		spinBtn.BackgroundColor3 = Color3.fromRGB(255,0,120)
+	else
+		spinBtn.Text = "SPINBOT : OFF"
+		spinBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+
+	if spin and character then
+
+		local root = character:FindFirstChild("HumanoidRootPart")
+
+		if root then
+
+			local newSpin = tonumber(spinBox.Text)
+
+			if newSpin then
+				spinSpeed = newSpin
+			end
+
+			root.CFrame = root.CFrame * CFrame.Angles(0, math.rad(spinSpeed), 0)
+		end
+	end
+end)
+
+--====================================================
+-- GUI TOGGLE
+--====================================================
+
+local visible = true
+
+UIS.InputBegan:Connect(function(input,gpe)
+	if gpe then return end
+
+	if input.KeyCode == Enum.KeyCode.RightControl then
+		visible = not visible
+		frame.Visible = visible
+	end
+end)
+--====================================================
+-- ESP
+--====================================================
+
+local esp = false
+
+local espBtn = createButton("ESP : OFF", Color3.fromRGB(50,50,50))
+
+espBtn.MouseButton1Click:Connect(function()
+
+	esp = not esp
+
+	if esp then
+
+		espBtn.Text = "ESP : ON"
+		espBtn.BackgroundColor3 = Color3.fromRGB(170,0,255)
+
+		for _,plr in pairs(Players:GetPlayers()) do
+
+			if plr ~= player and plr.Character then
+
+				if not plr.Character:FindFirstChild("Highlight") then
+
+					local hl = Instance.new("Highlight")
+					hl.FillColor = Color3.fromRGB(170,0,255)
+					hl.OutlineColor = Color3.new(1,1,1)
+					hl.Parent = plr.Character
+				end
+			end
+		end
+
+	else
+
+		espBtn.Text = "ESP : OFF"
+		espBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+		for _,plr in pairs(Players:GetPlayers()) do
+
+			if plr.Character then
+
+				local hl = plr.Character:FindFirstChild("Highlight")
+
+				if hl then
+					hl:Destroy()
+				end
+			end
+		end
+	end
+end)
+print("NICKS UNIVERSAL GUI V7 LOADED")
+--====================================================
+-- RESET BUTTON
+--====================================================
+
+local resetBtn = createButton("RESET ALL", Color3.fromRGB(120,0,0))
+
+resetBtn.MouseButton1Click:Connect(function()
+
+	-- RESET WALKSPEED
+	humanoid.WalkSpeed = 16
+
+	-- RESET JUMPPOWER
+	humanoid.JumpPower = 50
+
+	-- RESET FLY
+	flying = false
+
+	if bv then
+		bv:Destroy()
+	end
+
+	if bg then
+		bg:Destroy()
+	end
+
+	humanoid.PlatformStand = false
+
+	-- RESET BUTTON COLORS
+	flyBtn.Text = "FLY : OFF"
+	flyBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+	-- RESET ESP
+	esp = false
+
+	if espBtn then
+		espBtn.Text = "ESP : OFF"
+		espBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+	end
+
+	for _,plr in pairs(Players:GetPlayers()) do
+
+		if plr ~= player and plr.Character then
+
+			local hl = plr.Character:FindFirstChild("Highlight")
+
+			if hl then
+				hl:Destroy()
+			end
+		end
+	end
+end)
+
+
+--====================================================
+-- INFINITE JUMP
+--====================================================
+
+local infJump = false
+
+local infJumpBtn = createButton("INFINITE JUMP : OFF", Color3.fromRGB(50,50,50))
+
+infJumpBtn.MouseButton1Click:Connect(function()
+
+	infJump = not infJump
+
+	if infJump then
+
+		infJumpBtn.Text = "INFINITE JUMP : ON"
+		infJumpBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
+
+	else
+
+		infJumpBtn.Text = "INFINITE JUMP : OFF"
+		infJumpBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+	end
+end)
+
+UIS.JumpRequest:Connect(function()
+
+	if infJump then
+		humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end)
+
+
+--====================================================
+-- NOTIFICATION
+--====================================================
+
+local notification = Instance.new("TextLabel")
+notification.Size = UDim2.new(0,320,0,50)
+notification.Position = UDim2.new(1,-340,1,-70)
+notification.BackgroundColor3 = Color3.fromRGB(15,15,15)
+notification.Text = "NICKS GUI LOADED SUCCESSFULLY"
+notification.Font = Enum.Font.GothamBold
+notification.TextScaled = true
+notification.TextColor3 = Color3.new(1,1,1)
+notification.BorderSizePixel = 0
+notification.Parent = gui
+
+local notifCorner = Instance.new("UICorner")
+notifCorner.CornerRadius = UDim.new(0,16)
+notifCorner.Parent = notification
+
+local notifStroke = Instance.new("UIStroke")
+notifStroke.Color = Color3.fromRGB(170,0,255)
+notifStroke.Thickness = 2
+notifStroke.Parent = notification
+
+TweenService:Create(notification,TweenInfo.new(0.5),{
+	Position = UDim2.new(1,-340,1,-120)
+}):Play()
+
+task.delay(4,function()
+
+	TweenService:Create(notification,TweenInfo.new(0.5),{
+		Position = UDim2.new(1,400,1,-120)
+	}):Play()
+
+end)
+
+--====================================================
+-- RAINBOW BORDER
 --====================================================
 
 task.spawn(function()
 
-```
-while gui.Parent do
+	while true do
 
-    for i = 0,1,0.01 do
+		for i = 0,1,0.01 do
 
-        mainStroke.Color = Color3.fromHSV(i,1,1)
+			if stroke then
+				stroke.Color = Color3.fromHSV(i,1,1)
+			end
 
-        task.wait()
+			RunService.RenderStepped:Wait()
 
-    end
-end
-```
+		end
+	end
+end)
+--====================================================
+-- CLICK TELEPORT
+--====================================================
 
+local clickTP = false
+
+local clickTPBtn = createButton("CLICK TP : OFF", Color3.fromRGB(50,50,50))
+
+clickTPBtn.MouseButton1Click:Connect(function()
+
+	clickTP = not clickTP
+
+	if clickTP then
+
+		clickTPBtn.Text = "CLICK TP : ON"
+		clickTPBtn.BackgroundColor3 = Color3.fromRGB(0,255,120)
+
+	else
+
+		clickTPBtn.Text = "CLICK TP : OFF"
+		clickTPBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+	end
+end)
+
+local mouse = player:GetMouse()
+
+mouse.Button1Down:Connect(function()
+
+	if clickTP then
+
+		local root = character:FindFirstChild("HumanoidRootPart")
+
+		if root then
+			root.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0,5,0))
+		end
+	end
 end)
 
 --====================================================
--- TOPBAR
+-- INTRO ANIMATION
 --====================================================
 
-local topbar = Instance.new("Frame")
-topbar.Size = UDim2.new(1,0,0,55)
-topbar.BackgroundTransparency = 1
-topbar.Parent = main
+local intro = Instance.new("TextLabel")
+intro.Size = UDim2.new(1,0,1,0)
+intro.BackgroundColor3 = Color3.fromRGB(0,0,0)
+intro.Text = "NICKS UNIVERSAL GUI"
+intro.Font = Enum.Font.GothamBlack
+intro.TextScaled = true
+intro.TextColor3 = Color3.new(1,1,1)
+intro.Parent = gui
 
-local topText = Instance.new("TextLabel")
-topText.Size = UDim2.new(1,0,1,0)
-topText.BackgroundTransparency = 1
-topText.Text = "S4INT HUB"
-topText.Font = Enum.Font.GothamBlack
-topText.TextScaled = true
-topText.TextColor3 = Theme.Text
-topText.Parent = topbar
+TweenService:Create(intro,TweenInfo.new(2),{
+	TextTransparency = 1,
+	BackgroundTransparency = 1
+}):Play()
 
---====================================================
--- SIDEBAR
---====================================================
-
-local sidebar = Instance.new("Frame")
-sidebar.Size = UDim2.new(0,180,1,-70)
-sidebar.Position = UDim2.new(0,10,0,60)
-sidebar.BackgroundColor3 = Theme.Secondary
-sidebar.BorderSizePixel = 0
-sidebar.Parent = main
-
-local sideCorner = Instance.new("UICorner")
-sideCorner.CornerRadius = UDim.new(0,18)
-sideCorner.Parent = sidebar
-
-local sideLayout = Instance.new("UIListLayout")
-sideLayout.Padding = UDim.new(0,10)
-sideLayout.Parent = sidebar
-
---====================================================
--- CONTENT
---====================================================
-
-local content = Instance.new("Frame")
-content.Size = UDim2.new(1,-210,1,-80)
-content.Position = UDim2.new(0,200,0,70)
-content.BackgroundTransparency = 1
-content.Parent = main
-
---====================================================
--- PAGE SYSTEM
---====================================================
-
-local pages = {}
-
-local function CreatePage(name)
-
-```
-local page = Instance.new("ScrollingFrame")
-
-page.Name = name
-page.Size = UDim2.new(1,0,1,0)
-page.BackgroundTransparency = 1
-page.ScrollBarThickness = 4
-page.CanvasSize = UDim2.new(0,0,0,0)
-page.Visible = false
-page.Parent = content
-
-local layout = Instance.new("UIListLayout")
-layout.Padding = UDim.new(0,12)
-layout.Parent = page
-
-layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-
-    page.CanvasSize = UDim2.new(0,0,0,layout.AbsoluteContentSize.Y + 20)
-
-end)
-
-pages[name] = page
-
-return page
-```
-
-end
-
-local function CreateTab(name)
-
-```
-local button = Instance.new("TextButton")
-
-button.Size = UDim2.new(1,-20,0,45)
-button.Position = UDim2.new(0,10,0,0)
-
-button.BackgroundColor3 = Theme.Off
-button.Text = name
-
-button.Font = Enum.Font.GothamBold
-button.TextScaled = true
-button.TextColor3 = Theme.Text
-
-button.BorderSizePixel = 0
-button.Parent = sidebar
-
-local c = Instance.new("UICorner")
-c.CornerRadius = UDim.new(0,14)
-c.Parent = button
-
-local page = CreatePage(name)
-
-button.MouseButton1Click:Connect(function()
-
-    for _,v in pairs(content:GetChildren()) do
-
-        if v:IsA("ScrollingFrame") then
-            v.Visible = false
-        end
-    end
-
-    for _,b in pairs(sidebar:GetChildren()) do
-
-        if b:IsA("TextButton") then
-            b.BackgroundColor3 = Theme.Off
-        end
-    end
-
-    button.BackgroundColor3 = Theme.Primary
-    page.Visible = true
-
-end)
-
-return page
-```
-
-end
-
---====================================================
--- COMPONENTS
---====================================================
-
-local function CreateButton(parent,text,color,callback)
-
-```
-local button = Instance.new("TextButton")
-
-button.Size = UDim2.new(1,-10,0,50)
-button.BackgroundColor3 = color
-
-button.Text = text
-button.Font = Enum.Font.GothamBold
-button.TextScaled = true
-button.TextColor3 = Theme.Text
-
-button.BorderSizePixel = 0
-button.Parent = parent
-
-local c = Instance.new("UICorner")
-c.CornerRadius = UDim.new(0,16)
-c.Parent = button
-
-button.MouseButton1Click:Connect(callback)
-
-return button
-```
-
-end
-
---====================================================
--- TABS
---====================================================
-
-local playerTab = CreateTab("PLAYER")
-local visualsTab = CreateTab("VISUALS")
-local settingsTab = CreateTab("SETTINGS")
-
-playerTab.Visible = true
-
---====================================================
--- PLAYER TAB
---====================================================
-
-CreateButton(playerTab,"SET WALKSPEED 32",Theme.Accent,function()
-
-```
-local char = player.Character
-
-if char then
-
-    local hum = char:FindFirstChild("Humanoid")
-
-    if hum then
-        hum.WalkSpeed = 32
-    end
-end
-```
-
-end)
-
-CreateButton(playerTab,"SET JUMPPOWER 100",Theme.Primary,function()
-
-```
-local char = player.Character
-
-if char then
-
-    local hum = char:FindFirstChild("Humanoid")
-
-    if hum then
-        hum.JumpPower = 100
-    end
-end
-```
-
+task.delay(2,function()
+	intro:Destroy()
 end)
 
 --====================================================
--- VISUALS TAB
+-- SCRIPT HUB
 --====================================================
 
-local fullbright = false
+local scriptHubTitle = Instance.new("TextLabel")
+scriptHubTitle.Size = UDim2.new(1,0,0,45)
+scriptHubTitle.BackgroundTransparency = 1
+scriptHubTitle.Text = "SCRIPT HUB"
+scriptHubTitle.Font = Enum.Font.GothamBlack
+scriptHubTitle.TextScaled = true
+scriptHubTitle.TextColor3 = Color3.fromRGB(170,0,255)
+scriptHubTitle.Parent = holder
 
-CreateButton(visualsTab,"TOGGLE FULLBRIGHT",Theme.Success,function()
+local fakeScript1 = createButton("BLOX FRUITS SCRIPT", Color3.fromRGB(25,25,25))
+local fakeScript2 = createButton("MM2 SCRIPT", Color3.fromRGB(25,25,25))
+local fakeScript3 = createButton("ARSENAL SCRIPT", Color3.fromRGB(25,25,25))
 
-```
-fullbright = not fullbright
+fakeScript1.MouseButton1Click:Connect(function()
+	print("Blox Fruits Script Loaded")
+end)
 
-if fullbright then
+fakeScript2.MouseButton1Click:Connect(function()
+	print("MM2 Script Loaded")
+end)
 
-    Lighting.Brightness = 5
-    Lighting.ClockTime = 14
-    Lighting.FogEnd = 100000
-
-else
-
-    Lighting.Brightness = 2
-    Lighting.ClockTime = 12
-
-end
-```
-
+fakeScript3.MouseButton1Click:Connect(function()
+	print("Arsenal Script Loaded")
 end)
 
 --====================================================
--- SETTINGS TAB
+-- AIMLOCK
 --====================================================
 
-CreateButton(settingsTab,"DESTROY UI",Theme.Danger,function()
+local aimlock = false
 
-```
-if blur then
-    blur:Destroy()
-end
+local aimBtn = createButton("AIMLOCK : OFF", Color3.fromRGB(50,50,50))
 
-gui:Destroy()
-```
+aimBtn.MouseButton1Click:Connect(function()
 
+	aimlock = not aimlock
+
+	if aimlock then
+
+		aimBtn.Text = "AIMLOCK : ON"
+		aimBtn.BackgroundColor3 = Color3.fromRGB(255,0,120)
+
+	else
+
+		aimBtn.Text = "AIMLOCK : OFF"
+		aimBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+	end
+end)
+
+RunService.RenderStepped:Connect(function()
+
+	if aimlock then
+
+		local closestPlayer = nil
+		local shortestDistance = math.huge
+
+		for _,plr in pairs(Players:GetPlayers()) do
+
+			if plr ~= player and plr.Character and plr.Character:FindFirstChild("Head") then
+
+				local distance = (plr.Character.Head.Position - character.Head.Position).Magnitude
+
+				if distance < shortestDistance then
+
+					shortestDistance = distance
+					closestPlayer = plr
+
+				end
+			end
+		end
+
+		if closestPlayer and closestPlayer.Character then
+
+			workspace.CurrentCamera.CFrame = CFrame.new(
+				workspace.CurrentCamera.CFrame.Position,
+				closestPlayer.Character.Head.Position
+			)
+
+		end
+	end
 end)
 
 --====================================================
--- VERIFY BUTTON
+-- SILENT AIM
 --====================================================
 
-verify.MouseButton1Click:Connect(function()
+local silentAim = false
 
-```
-local key = keyBox.Text
+local silentBtn = createButton("SILENT AIM : OFF", Color3.fromRGB(50,50,50))
 
-if ValidKeys[key] then
+silentBtn.MouseButton1Click:Connect(function()
 
-    keyFrame.Visible = false
-    main.Visible = true
+	silentAim = not silentAim
 
-else
+	if silentAim then
 
-    verify.Text = "INVALID KEY"
+		silentBtn.Text = "SILENT AIM : ON"
+		silentBtn.BackgroundColor3 = Color3.fromRGB(255,120,0)
 
-    task.wait(1)
+	else
 
-    verify.Text = "VERIFY"
+		silentBtn.Text = "SILENT AIM : OFF"
+		silentBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
 
-end
-```
-
+	end
 end)
 
---====================================================
--- DRAG SYSTEM
---====================================================
-
-local dragging
-local dragInput
-local dragStart
-local startPos
-
-main.InputBegan:Connect(function(input)
-
-```
-if input.UserInputType == Enum.UserInputType.MouseButton1 then
-
-    dragging = true
-    dragStart = input.Position
-    startPos = main.Position
-
-    input.Changed:Connect(function()
-
-        if input.UserInputState == Enum.UserInputState.End then
-            dragging = false
-        end
-
-    end)
-end
-```
-
-end)
-
-main.InputChanged:Connect(function(input)
-
-```
-if input.UserInputType == Enum.UserInputType.MouseMovement then
-    dragInput = input
-end
-```
-
-end)
-
-UIS.InputChanged:Connect(function(input)
-
-```
-if input == dragInput and dragging then
-
-    local delta = input.Position - dragStart
-
-    main.Position = UDim2.new(
-        startPos.X.Scale,
-        startPos.X.Offset + delta.X,
-        startPos.Y.Scale,
-        startPos.Y.Offset + delta.Y
-    )
-end
-```
-
-end)
-
-print("S4INT HUB LOADED")
+print("PREMIUM FEATURES LOADED")
