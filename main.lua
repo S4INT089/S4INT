@@ -1,4 +1,205 @@
 
+--// NICKS UNIVERSAL GUI V7 PREMIUM
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+
+--====================================================
+-- GUI
+--====================================================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "NicksUniversalGUI"
+gui.ResetOnSpawn = false
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- BLUR REMOVED
+
+--====================================================
+-- LOADING SCREEN
+--====================================================
+
+local loading = Instance.new("Frame")
+loading.Size = UDim2.new(1,0,1,0)
+loading.BackgroundColor3 = Color3.fromRGB(5,5,5)
+loading.Parent = gui
+
+local glow = Instance.new("ImageLabel")
+glow.Size = UDim2.new(0,1200,0,1200)
+glow.Position = UDim2.new(0.5,-600,0.5,-600)
+glow.BackgroundTransparency = 1
+glow.Image = "rbxassetid://5028857084"
+glow.ImageColor3 = Color3.fromRGB(170,0,255)
+glow.ImageTransparency = 0.45
+glow.Parent = loading
+
+TweenService:Create(
+	glow,
+	TweenInfo.new(12,Enum.EasingStyle.Linear,Enum.EasingDirection.InOut,-1),
+	{Rotation = 360}
+):Play()
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0,100)
+title.Position = UDim2.new(0,0,0.3,0)
+title.BackgroundTransparency = 1
+title.Text = "NICKS UNIVERSAL GUI"
+title.Font = Enum.Font.GothamBlack
+title.TextScaled = true
+title.TextColor3 = Color3.new(1,1,1)
+title.Parent = loading
+
+local subtitle = Instance.new("TextLabel")
+subtitle.Size = UDim2.new(1,0,0,40)
+subtitle.Position = UDim2.new(0,0,0.4,0)
+subtitle.BackgroundTransparency = 1
+subtitle.Text = "PREMIUM UNIVERSAL EXPERIENCE"
+subtitle.Font = Enum.Font.GothamBold
+subtitle.TextScaled = true
+subtitle.TextColor3 = Color3.fromRGB(170,170,170)
+subtitle.Parent = loading
+
+local barBG = Instance.new("Frame")
+barBG.Size = UDim2.new(0,430,0,12)
+barBG.Position = UDim2.new(0.5,-215,0.55,0)
+barBG.BackgroundColor3 = Color3.fromRGB(25,25,25)
+barBG.BorderSizePixel = 0
+barBG.Parent = loading
+
+local bgCorner = Instance.new("UICorner")
+bgCorner.CornerRadius = UDim.new(1,0)
+bgCorner.Parent = barBG
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.fromRGB(170,0,255)
+bar.BorderSizePixel = 0
+bar.Parent = barBG
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(1,0)
+barCorner.Parent = bar
+
+TweenService:Create(bar,TweenInfo.new(4),{
+	Size = UDim2.new(1,0,1,0)
+}):Play()
+
+task.wait(4)
+
+--====================================================
+-- KEY SYSTEM
+--====================================================
+
+local keyFrame = Instance.new("Frame")
+keyFrame.Size = UDim2.new(0,430,0,250)
+keyFrame.Position = UDim2.new(0.5,-215,0.5,-125)
+keyFrame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+keyFrame.BorderSizePixel = 0
+keyFrame.Parent = loading
+
+local keyCorner = Instance.new("UICorner")
+keyCorner.CornerRadius = UDim.new(0,24)
+keyCorner.Parent = keyFrame
+
+local keyStroke = Instance.new("UIStroke")
+keyStroke.Color = Color3.fromRGB(170,0,255)
+keyStroke.Thickness = 2
+keyStroke.Parent = keyFrame
+
+local keyTitle = Instance.new("TextLabel")
+keyTitle.Size = UDim2.new(1,0,0,60)
+keyTitle.BackgroundTransparency = 1
+keyTitle.Text = "ENTER KEY"
+keyTitle.Font = Enum.Font.GothamBlack
+keyTitle.TextScaled = true
+keyTitle.TextColor3 = Color3.new(1,1,1)
+keyTitle.Parent = keyFrame
+
+local keyBox = Instance.new("TextBox")
+keyBox.Size = UDim2.new(0.85,0,0,55)
+keyBox.Position = UDim2.new(0.075,0,0.35,0)
+keyBox.BackgroundColor3 = Color3.fromRGB(20,20,20)
+keyBox.PlaceholderText = "ENTER ACCESS KEY"
+keyBox.Text = ""
+keyBox.Font = Enum.Font.GothamBold
+keyBox.TextScaled = true
+keyBox.TextColor3 = Color3.new(1,1,1)
+keyBox.Parent = keyFrame
+
+local keyBoxCorner = Instance.new("UICorner")
+keyBoxCorner.CornerRadius = UDim.new(0,18)
+keyBoxCorner.Parent = keyBox
+
+local enterBtn = Instance.new("TextButton")
+enterBtn.Size = UDim2.new(0.5,0,0,50)
+enterBtn.Position = UDim2.new(0.25,0,0.65,0)
+enterBtn.BackgroundColor3 = Color3.fromRGB(170,0,255)
+enterBtn.Text = "ENTER"
+enterBtn.Font = Enum.Font.GothamBlack
+enterBtn.TextScaled = true
+enterBtn.TextColor3 = Color3.new(1,1,1)
+enterBtn.BorderSizePixel = 0
+enterBtn.Parent = keyFrame
+
+local enterCorner = Instance.new("UICorner")
+enterCorner.CornerRadius = UDim.new(0,18)
+enterCorner.Parent = enterBtn
+
+local unlocked = false
+
+enterBtn.MouseButton1Click:Connect(function()
+	if keyBox.Text == "TXCN8X" then
+		unlocked = true
+		loading:Destroy()
+	else
+		keyBox.Text = "WRONG KEY"
+	end
+end)
+
+repeat task.wait() until unlocked
+
+--====================================================
+-- MAIN GUI
+--====================================================
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0,470,0,720)
+frame.Position = UDim2.new(0.03,0,0.08,0)
+frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+frame.BorderSizePixel = 0
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0,24)
+frameCorner.Parent = frame
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = Color3.fromRGB(170,0,255)
+stroke.Thickness = 2
+stroke.Parent = frame
+
+local title2 = Instance.new("TextLabel")
+title2.Size = UDim2.new(1,0,0,70)
+title2.BackgroundTransparency = 1
+title2.Text = "NICKS UNIVERSAL GUI"
+title2.Font = Enum.Font.GothamBlack
+title2.TextScaled = true
+title2.TextColor3 = Color3.new(1,1,1)
+title2.Parent = frame
+
+local fpsLabel = Instance.new("TextLabel")
+fpsLabel.Size = UDim2.new(0,120,0,30)
+fpsLabel.Position = UDim2.new(1,-130,0,20)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.Text = "FPS: 60"
+fpsLabel.Font = Enum.Font.GothamBold
 fpsLabel.TextScaled = true
 fpsLabel.TextColor3 = Color3.fromRGB(0,255,120)
 fpsLabel.Parent = frame
@@ -649,5 +850,93 @@ silentBtn.MouseButton1Click:Connect(function()
 
 	end
 end)
+-- DRAGGABLE GUI
 
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+	local delta = input.Position - dragStart
+
+	frame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
+end
+
+title2.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+title2.InputChanged:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
 print("PREMIUM FEATURES LOADED")
+player.CharacterAdded:Connect(function(char)
+
+	character = char
+	humanoid = character:WaitForChild("Humanoid")
+
+	-- RESET FLY
+	flying = false
+
+	-- RESET NOCLIP
+	noclip = false
+
+	-- RESET STATES
+	if bv then
+		bv:Destroy()
+	end
+
+	if bg then
+		bg:Destroy()
+	end
+
+	-- ESP FIX
+	if esp then
+
+		task.wait(1)
+
+		for _,plr in pairs(Players:GetPlayers()) do
+
+			if plr ~= player and plr.Character then
+
+				if not plr.Character:FindFirstChild("Highlight") then
+
+					local hl = Instance.new("Highlight")
+					hl.FillColor = Color3.fromRGB(170,0,255)
+					hl.OutlineColor = Color3.new(1,1,1)
+					hl.Parent = plr.Character
+				end
+			end
+		end
+	end
+end)
