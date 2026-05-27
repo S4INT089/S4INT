@@ -155,7 +155,7 @@ enterCorner.Parent = enterBtn
 local unlocked = false
 
 enterBtn.MouseButton1Click:Connect(function()
-	if keyBox.Text == "TXCN8X" then
+	if keyBox.Text == "S4INT202" then
 		unlocked = true
 		loading:Destroy()
 	else
